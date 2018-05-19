@@ -6,9 +6,9 @@ require("dotenv").config();
 //       * `spotify-this-song`
 //       * `movie-this`
 //       * `do-what-it-says`
-
-// var argOne = process.argv[2];
-// var argTwo = process.argv[3];
+var nodeArgs = process.argv;
+var argOne = process.argv[2];
+var argTwo = process.argv[3];
 // var argThree = process.argv[4];
 // var value = "";
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,7 @@ var fs = require("fs"); //reads and writes files
 var keys = require("./keys");
 var client = new Twitter(keys.twitter); //Twitter call with Twitter keys passing through
 var spotify = new Spotify(keys.spotify);
+var movieName = "";
 // let data = fs.readFileSync("./random.txt", "utf8");
 
 // console.log(keys);  //works
@@ -29,18 +30,20 @@ var spotify = new Spotify(keys.spotify);
 //FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////////////////
 //TWITTER FUNCTION GRABBING TWITTER INFORMATION
-var params = {
-    screen_name: "CandyCoder7",
-    count: 20
-};
-client.get('statuses/user_timeline', params, function (error, tweets, response) {
-    if (!error) {
-        // console.log(tweets);
-        for (var i = 0; i < tweets.length; i++) {
-        // console.log(tweets[i].text); //works
+function twitterApi() {
+    var params = {
+        screen_name: "CandyCoder7",
+        count: 20
+    };
+    client.get('statuses/user_timeline', params, function (error, tweets, response) {
+        if (!error) {
+            for (var i = 0; i < tweets.length; i++) {
+                console.log(tweets[i].text);
+            }
         }
-    }
-});
+    });
+
+}
 
 // use cases to call function when user types in specific commands
 //slice will turn into array
@@ -48,32 +51,86 @@ client.get('statuses/user_timeline', params, function (error, tweets, response) 
 //make sure to put quotes 
 //
 
-//SPOTIFY
-  //FIRST, capture user-input,
-  //SECOND, npm install spotify, and use the template as suggested in the DOCS. 
-  //THIRD, parse through the JSON.
+//SPOTIFY//////////////////////////////////////
+//FIRST, capture user-input,
+//SECOND, npm install spotify, and use the template as suggested in the DOCS. 
+//THIRD, parse through the JSON.
 function spotifyThisSong() {
     var songName = process.argv[3];
     params = songName;
     spotify.search({
-        type: 'track',
-        query: params
-    },
-    function (err, data) {
-        if (err) {
-            console.log('Error occurred: ' + err);
-            return;
-        }
-        else{
-            output = 
-            "Song Name: " + "'" + songName.toUpperCase()+ "'" + "\n" +
-            "Album Name: " + data.tracks.items[0].album.name + "\n" +
-            "Artist Name: " + data.tracks.items[0].album.artists[0].name + "\n" +
-            "URL: " + data.tracks.items[0].album.external_urls.spotify + "\n";
-            console.log(output);
-        }
-        // console.log(data);
-    });
+            type: 'track',
+            query: params
+        },
+        function (err, data) {
+            if (err) {
+                console.log('Error occurred: ' + err);
+                return;
+            } else {
+                output =
+                    "Song Name: " + "'" + songName.toUpperCase() + "'" + "\n" +
+                    "Album Name: " + data.tracks.items[0].album.name + "\n" +
+                    "Artist Name: " + data.tracks.items[0].album.artists[0].name + "\n" +
+                    "URL: " + data.tracks.items[0].album.external_urls.spotify + "\n";
+                console.log(output);
+            }
+            // console.log(data);
+        });
 
 }
-spotifyThisSong();
+
+//OMDB/////////////////////////////////////////////
+// *Title of the movie.
+// *Year the movie came out.
+// *IMDB Rating of the movie.
+// *Rotten Tomatoes Rating of the movie.
+// *Country where the movie was produced.
+// *Language of the movie.
+// *Plot of the movie.
+// *Actors in the movie.
+
+function myOMDB() {
+    for (var i = 3; i < nodeArgs.length; i++) {
+        if (i > 3 && i < nodeArgs.length) {
+            movieName = movieName + "+" + nodeArgs[i];
+        } else {
+            movieName += nodeArgs[i];
+        }
+    }
+    //OMDB API
+    var queryURL = "http://www.omdbapi.com/?t=" + movieName + "&y=&plot=short&apikey=trilogy";
+    // console.log(queryURL);
+
+    request(queryURL, function (error, response, body) {
+        if (!error && response.statusCode === 200) {
+            var jsonData = JSON.parse(body);
+            console.log("Title: " + jsonData.Title);
+            console.log("Release Year: " + jsonData.Year);
+            console.log("IMDB Rating: " + jsonData.Ratings[0].Value);
+            console.log("Rotten Tomatoes Rating: " + jsonData.Ratings[1].Value);
+            console.log("Country Where Produced: " + jsonData.Country);
+            console.log("Language: " + jsonData.Language);
+            console.log("Plot: " + jsonData.Plot);
+            console.log("Actors: " + jsonData.Actors);
+
+
+        }
+    });
+}
+
+
+//SWITCH CASE
+function userInput(argOne) {
+    switch (argOne) {
+        case 'spotify-this-song':
+            spotifyThisSong();
+            break;
+        case 'my-tweets':
+            twitterApi();
+            break;
+        case 'movie-this':
+            myOMDB();
+            break;
+    }
+}
+userInput(argOne);
