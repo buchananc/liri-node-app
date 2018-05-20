@@ -3,8 +3,11 @@
 LIRI is like iPhone's SIRI. However, while SIRI is a Speech Interpretation and Recognition Interface, LIRI is a Language Interpretation and Recognition Interface. LIRI is a command line node app that takes in parameters and returns data based on one of four commands:
 
 *`my-tweets`
+
 *`spotify-this-song`
+
 *`movie-this`
+
 *`do-what-it-says`
 
 ## How Each Command Works
@@ -45,6 +48,9 @@ LIRI is like iPhone's SIRI. However, while SIRI is a Speech Interpretation and R
 
 ## NPM's Used:
 Node-Spotify-Api: https://www.npmjs.com/package/node-spotify-api
+
 Twitter for Node.js: https://www.npmjs.com/package/twitter
+
 Request: https://www.npmjs.com/package/request
+
 DotEnv: https://www.npmjs.com/package/dotenv
