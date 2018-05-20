@@ -23,9 +23,6 @@ LIRI is like iPhone's SIRI. However, while SIRI is a Speech Interpretation and R
     * A preview link of the song from Spotify
     * The album that the song is from
 
-  * Or if no song is passed through, it will default to
-    *"Florescent Adolescent" by Arctic Monkeys
-
 3. `node liri.js movie-this 'movie name'`
 
   * Shows the following information in terminal/bash.
