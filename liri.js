@@ -1,16 +1,8 @@
 require("dotenv").config();
 
-//   Make it so liri.js can take in one of the following commands:
-//       * `my-tweets`
-//       * `spotify-this-song`
-//       * `spotify-this-song`
-//       * `movie-this`
-//       * `do-what-it-says`
 var nodeArgs = process.argv;
 var argOne = process.argv[2];
 var argTwo = process.argv[3];
-// var argThree = process.argv[4];
-// var value = "";
 ////////////////////////////////////////////////////////////////////////////////////////////
 //NPM MODULES TO IMPORT
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -22,14 +14,30 @@ var keys = require("./keys");
 var client = new Twitter(keys.twitter); //Twitter call with Twitter keys passing through
 var spotify = new Spotify(keys.spotify);
 var movieName = "";
-// let data = fs.readFileSync("./random.txt", "utf8");
 
-// console.log(keys);  //works
-// console.log(client); //works
 ////////////////////////////////////////////////////////////////////////////////////////////
 //FUNCTIONS
 ////////////////////////////////////////////////////////////////////////////////////////////
-//TWITTER FUNCTION GRABBING TWITTER INFORMATION
+//SWITCH CASE/////////////////////////////////
+function userInput(argOne) {
+    switch (argOne) {
+        case 'spotify-this-song':
+            spotifyThisSong();
+            break;
+        case 'my-tweets':
+            twitterApi();
+            break;
+        case 'movie-this':
+            myOMDB();
+            break;
+        // case 'do-what-it-says':
+        //     doAction();
+        //     break;
+    }
+}
+userInput(argOne);
+
+// TWITTER///////////////////////////////////////
 function twitterApi() {
     var params = {
         screen_name: "CandyCoder7",
@@ -45,16 +53,7 @@ function twitterApi() {
 
 }
 
-// use cases to call function when user types in specific commands
-//slice will turn into array
-//join the array which makes a string
-//make sure to put quotes 
-//
-
 //SPOTIFY//////////////////////////////////////
-//FIRST, capture user-input,
-//SECOND, npm install spotify, and use the template as suggested in the DOCS. 
-//THIRD, parse through the JSON.
 function spotifyThisSong() {
     var songName = process.argv[3];
     params = songName;
@@ -62,33 +61,23 @@ function spotifyThisSong() {
             type: 'track',
             query: params
         },
-        function (err, data) {
-            if (err) {
-                console.log('Error occurred: ' + err);
-                return;
-            } else {
-                output =
-                    "Song Name: " + "'" + songName.toUpperCase() + "'" + "\n" +
-                    "Album Name: " + data.tracks.items[0].album.name + "\n" +
-                    "Artist Name: " + data.tracks.items[0].album.artists[0].name + "\n" +
-                    "URL: " + data.tracks.items[0].album.external_urls.spotify + "\n";
-                console.log(output);
-            }
-            // console.log(data);
-        });
-
+    function (err, data) {
+        if (err) {
+            console.log('Error occurred: ' + err);
+            return;
+        } else {
+            output =
+                "Spotify has the following information about your song: \n" +
+                "Song Name: " + "'" + songName.toUpperCase() + "'" + "\n" +
+                "Album Name: " + data.tracks.items[0].album.name + "\n" +
+                "Artist Name: " + data.tracks.items[0].album.artists[0].name + "\n" +
+                "URL: " + data.tracks.items[0].album.external_urls.spotify + "\n";
+            console.log(output);
+        }
+    });
 }
 
 //OMDB/////////////////////////////////////////////
-// *Title of the movie.
-// *Year the movie came out.
-// *IMDB Rating of the movie.
-// *Rotten Tomatoes Rating of the movie.
-// *Country where the movie was produced.
-// *Language of the movie.
-// *Plot of the movie.
-// *Actors in the movie.
-
 function myOMDB() {
     for (var i = 3; i < nodeArgs.length; i++) {
         if (i > 3 && i < nodeArgs.length) {
@@ -112,25 +101,39 @@ function myOMDB() {
             console.log("Language: " + jsonData.Language);
             console.log("Plot: " + jsonData.Plot);
             console.log("Actors: " + jsonData.Actors);
-
-
         }
     });
 }
 
+//FS NODE/////////////////////////////////////////////////////////
+if (process.argv[2] === 'do-what-it-says') {
+    var dataInput;
+    fs.readFile('random.txt', 'utf8', function(error, data) {
+        if(error) {
+            return console.log(error);
+        }
 
-//SWITCH CASE
-function userInput(argOne) {
-    switch (argOne) {
-        case 'spotify-this-song':
-            spotifyThisSong();
-            break;
-        case 'my-tweets':
-            twitterApi();
-            break;
-        case 'movie-this':
-            myOMDB();
-            break;
-    }
+        dataInput = data.split(',');
+        var inputTrimmed = dataInput.map(function(item) {
+            return item.trim().length;
+        });
+
+        spotify.search({
+            type: 'track',
+            query: dataInput[1]
+        }, 
+        function (err, data) {
+            if (err) {
+                console.log('Error occurred: ' + err);
+                return;
+            } else {
+                output =
+                    "Song Name: " + "'" + dataInput[1].toUpperCase() + "'" + "\n" +
+                    "Album Name: " + data.tracks.items[0].album.name + "\n" +
+                    "Artist Name: " + data.tracks.items[0].album.artists[0].name + "\n" +
+                    "URL: " + data.tracks.items[0].album.external_urls.spotify + "\n";
+                console.log(output);
+            }
+        });
+    });
 }
-userInput(argOne);
